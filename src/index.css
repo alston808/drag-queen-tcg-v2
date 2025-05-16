@@ -1,0 +1,237 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gradient-to-br from-blue-violet to-deep-pink text-soft-white min-h-screen font-sans;
+    font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif; /* Ensure Playfair Display is used for headings */
+  }
+
+  button:focus,
+  button:focus-visible {
+    outline: 3px auto theme('colors.gold'); /* Custom focus outline */
+    outline-offset: 2px;
+  }
+
+  .pretty-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .pretty-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
+  .pretty-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 105, 180, 0.6); /* hot-pink with transparency */
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .pretty-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 20, 147, 0.8); /* deep-pink with transparency */
+  }
+}
+
+@layer components {
+  .btn {
+    @apply font-serif font-bold py-2.5 px-6 rounded-lg text-lg shadow-md transition-all duration-200 ease-in-out transform hover:scale-105 border-2 focus:outline-none focus:ring-4 focus:ring-opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-hot-pink hover:bg-deep-pink text-white border-white/50 hover:border-white focus:ring-pink-400;
+  }
+  .btn-secondary {
+    @apply btn bg-deep-sky-blue hover:bg-blue-violet text-white border-white/50 hover:border-white focus:ring-sky-400;
+  }
+  .btn-alt {
+     @apply btn bg-purple-glass hover:bg-orchid text-white border-white/30 hover:border-hot-pink/70 focus:ring-orchid;
+  }
+  .btn-disabled {
+    @apply btn bg-gray-600 text-gray-400 border-gray-500/50 cursor-not-allowed opacity-70 hover:scale-100;
+  }
+}
+
+@layer utilities {
+/* Add to your @layer utilities */
+.animate-cuntFlash {
+  animation: cuntFlash 1.2s 0.2s ease-in-out forwards; /* Delay slightly after VS text */
+}
+
+  /* Glassmorphism Backgrounds */
+  .bg-pink-glass { background-color: rgba(255, 105, 180, 0.3); @apply backdrop-blur-md; }
+  .bg-purple-glass { background-color: rgba(147, 112, 219, 0.35); @apply backdrop-blur-md; }
+  .bg-blue-glass { background-color: rgba(0, 191, 255, 0.25); @apply backdrop-blur-md; }
+  .bg-dark-glass { background-color: rgba(15, 10, 30, 0.75); @apply backdrop-blur-lg; } /* Darker, more opaque for main UI elements */
+  .bg-light-glass { background-color: rgba(200, 200, 255, 0.2); @apply backdrop-blur-sm; }
+
+  /* Animated Gradient for Title Screen */
+  .animated-gradient-background {
+    background: linear-gradient(-45deg, #8A2BE2, #FF1493, #00BFFF, #DA70D6, #4682B4, #FF8C00);
+    background-size: 600% 600%;
+    animation: gradientShift 25s ease infinite;
+  }
+
+  /* Lip Sync Battle Animations */
+  .animate-slideInFromLeftVS { animation: slideInFromLeftVS 0.7s 0.2s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+  .animate-slideInFromRightVS { animation: slideInFromRightVS 0.7s 0.2s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+  .animate-textPopVS { animation: textPopVS 0.8s 0.6s ease-out forwards; }
+  .animate-fadeInScaleUpVS { animation: fadeInScaleUpVS 0.5s ease-out forwards; }
+
+
+  /* Older general game animations (can be reviewed/removed if not used) */
+  .versus-screen-enter { animation: fadeInBackdrop 0.5s ease-out forwards; }
+  .versus-screen-exit { animation: fadeOutBackdrop 0.5s ease-in forwards; }
+  .queen-battle-enter-left { animation: slideInFromLeftVS 0.7s 0.2s cubic-bezier(0.25, 1, 0.5, 1) forwards; opacity: 0; } /* Re-using VS anim */
+  .queen-battle-enter-right { animation: slideInFromRightVS 0.7s 0.2s cubic-bezier(0.25, 1, 0.5, 1) forwards; opacity: 0; } /* Re-using VS anim */
+  .queen-attack-visual { animation: queenVisualAttackEffect 1.5s 0.5s ease-out forwards; }
+  .versus-text-pop { animation: textPopVS 0.8s 0.6s ease-out forwards; opacity: 0; transform: scale(0.3) rotate(-20deg); } /* Re-using VS anim */
+  .category-reveal-vs { animation: fadeInDropVS 0.7s 0.1s ease-out forwards; opacity: 0; transform: translateY(-25px); }
+  .score-reveal-vs { animation: fadeInScaleUpVS 0.6s ease-out forwards; opacity: 0; } /* Re-using VS anim */
+
+  /* Pulse for watermark on card */
+  .animate-pulse-slow {
+    animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+/* Keyframes Definitions */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes fadeInBackdrop { /* For general modal backdrops if needed */
+  from { opacity: 0; backdrop-filter: blur(0px); }
+  to { opacity: 1; backdrop-filter: blur(8px); } /* Adjust blur as needed */
+}
+
+@keyframes fadeOutBackdrop {
+  from { opacity: 1; backdrop-filter: blur(8px); }
+  to { opacity: 0; backdrop-filter: blur(0px); }
+}
+
+/* Lip Sync Battle Animations */
+@keyframes slideInFromLeftVS {
+  from { transform: translateX(-100%) rotate(-10deg) scale(0.9); opacity: 0; } /* Adjusted for less rotation */
+  to { transform: translateX(0) rotate(0deg) scale(1); opacity: 1; }
+}
+
+@keyframes slideInFromRightVS {
+  from { transform: translateX(100%) rotate(10deg) scale(0.9); opacity: 0; } /* Adjusted for less rotation */
+  to { transform: translateX(0) rotate(0deg) scale(1); opacity: 1; }
+}
+
+@keyframes textPopVS { /* For "VS" and Category text */
+  0% { opacity: 0; transform: scale(0.5) translateY(20px); }
+  60% { opacity: 1; transform: scale(1.1) translateY(-5px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes fadeInScaleUpVS { /* For scores in Lip Sync Battle */
+  from { opacity: 0; transform: scale(0.8) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes fadeInDropVS { /* Potentially for category reveal if textPopVS isn't desired */
+  from { opacity: 0; transform: translateY(-30px) scale(0.8); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+
+/* Older general game animations (can be reviewed/removed if not used) */
+@keyframes queenVisualAttackEffect {
+  0% { transform: scale(1) translateY(0); opacity: 0.7; }
+  30% { transform: scale(1.25) translateY(-10%); opacity: 1; filter: brightness(1.1); }
+  70% { transform: scale(1.25) translateY(-10%); opacity: 1; filter: brightness(1.1); }
+  100% { transform: scale(1) translateY(0); opacity: 0.7; filter: brightness(1); }
+}
+
+@keyframes queenEntrance {
+  0% { opacity: 0; transform: translateY(20px) scale(0.9); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes queenAttack { /* Example, can be more dynamic */
+  0% { transform: translateX(0) rotate(0deg); }
+  20% { transform: translateX(10px) rotate(1deg); }
+  40% { transform: translateX(-5px) rotate(-0.5deg); }
+  60% { transform: translateX(5px) rotate(0.5deg); }
+  100% { transform: translateX(0) rotate(0deg); }
+}
+@keyframes queenDefend { /* Example */
+  0% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+@keyframes shadeEffect {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(0.7) saturate(0.8); }
+}
+@keyframes victoryPose { /* Example */
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.05) rotate(2deg); }
+}
+@keyframes eliminationEffect {
+  0% { opacity: 1; transform: scale(1) rotate(0deg); filter: grayscale(0%); }
+  100% { opacity: 0; transform: scale(0.7) rotate(-5deg) translateY(20px); filter: grayscale(100%); }
+}
+
+/* Utility classes for these older animations if you decide to use them */
+.queen-container { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+.queen-entrance { animation: queenEntrance 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+.queen-attack { animation: queenAttack 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
+.queen-defend { animation: queenDefend 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
+.queen-victory { animation: victoryPose 1s cubic-bezier(0.4, 0, 0.2, 1); }
+.queen-elimination { animation: eliminationEffect 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+
+.battle-flash { /* For a quick screen flash effect */
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(45deg, rgba(255,105,180,0.2), rgba(147,112,219,0.2));
+  pointer-events: none;
+  z-index: 100; /* Ensure it's above most content but below modals/popups */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.battle-flash.active { opacity: 1; }
+
+.category-reveal { /* General category reveal animation */
+  animation: categoryReveal 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes categoryReveal { /* Example for category-reveal class */
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.stat-change { /* For stat changes on cards */
+  animation: statChange 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes statChange { /* Example */
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); color: theme('colors.gold'); }
+}
+
+@keyframes pulse-slow { /* For watermark on card */
+  0% { opacity: 0.2; }
+  50% { opacity: 0.3; }
+  100% { opacity: 0.2; }
+}
+
+/* Add to your @keyframes definitions */
+@keyframes cuntFlash {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  20% { opacity: 1; transform: scale(1.15) rotate(-2deg); text-shadow: 0 0 15px currentColor, 0 0 25px currentColor, 0 0 5px #fff; }
+  40% { opacity: 0.8; transform: scale(1.05) rotate(1deg); }
+  60% { opacity: 1; transform: scale(1.2) rotate(-1deg); text-shadow: 0 0 20px currentColor, 0 0 30px currentColor, 0 0 10px #fff; }
+  80% { opacity: 0.9; transform: scale(1.08) rotate(0.5deg); }
+}
+
+/* .animate-pulse-slow is already defined in @layer utilities */
+

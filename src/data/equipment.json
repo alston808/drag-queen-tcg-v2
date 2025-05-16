@@ -1,0 +1,112 @@
+[
+  {
+    "card_id": "EQW-001",
+    "card_name": "The 'Skyscraper' Wig",
+    "gag_cost": 2,
+    "type": "Wig",
+    "effect_text": "+2 Charisma. If this Queen's base Nerve is 6 or more, also +1 Nerve.",
+    "flavor_text": "So tall, it's giving 'weather report from the heavens'.",
+    "rarity": "Gagatrondra",
+    "edition_set": "All Stars 10 Core Set",
+    "image_file_name": "equip_skyscraperwig_art.png"
+  },
+  {
+    "card_id": "EQC-001",
+    "card_name": "Sequin Illusion Gown",
+    "gag_cost": 3,
+    "type": "Costume",
+    "effect_text": "+2 Talent. During a Lip Sync, if the category is Uniqueness, gain +1 to the Performance Score.",
+    "flavor_text": "Is she naked? Is she dripping in jewels? Yes.",
+    "rarity": "Iconic",
+    "edition_set": "All Stars 10 Core Set",
+    "image_file_name": "equip_sequingown_art.png"
+  },
+  {
+    "card_id": "EQS-001",
+    "card_name": "'Death Drop' Stilettos",
+    "gag_cost": 2,
+    "type": "Shoes",
+    "effect_text": "+1 Talent. If this Queen wins a Lip Sync based on Talent, the opponent's Queen gets 1 Shade Token.",
+    "flavor_text": "Ankles worldwide are quaking.",
+    "rarity": "Gagatrondra",
+    "edition_set": "All Stars 10 Core Set",
+    "image_file_name": "equip_deathdropstilettos_art.png"
+  },
+  {
+    "card_id": "EQA-PRT-001",
+    "card_name": "Padding Perfection",
+    "gag_cost": 1,
+    "type": "Accessory - Prosthetic",
+    "effect_text": "+2 Nerve. This Queen can hold 4 Shade Tokens before being Read for Filth.",
+    "flavor_text": "The body is HERE... and impeccably sculpted.",
+    "rarity": "Fierce",
+    "edition_set": "All Stars 10 Core Set",
+    "image_file_name": "equip_paddingperfection_art.png"
+  },
+  {
+    "card_id": "EQA-PRP-001",
+    "card_name": "Gag-Worthy Fan",
+    "gag_cost": 1,
+    "type": "Accessory - Prop",
+    "effect_text": "Activate during your Werk Room Phase: Pay 1 Gag Token. Draw 1 card.",
+    "flavor_text": "*Thworp!* The library is open, and so is your hand.",
+    "rarity": "Fierce",
+    "edition_set": "All Stars 10 Core Set",
+    "image_file_name": "equip_gagworthyfan_art.png"
+  },
+  {
+    "card_id": "EQA-PRT-002",
+    "card_name": "The 'Tuck Everlasting' Tape",
+    "gag_cost": 2,
+    "type": "Accessory - Prosthetic",
+    "effect_text": "+1 Uniqueness. Once per game, prevent 1 Shade Token from being placed on this Queen.",
+    "flavor_text": "Secured for the gods, honey.",
+    "rarity": "Gagatrondra",
+    "edition_set": "All Stars 10 Core Set",
+    "image_file_name": "equip_tucktape_art.png"
+  },
+  {
+    "card_id": "EQA-JWL-001",
+    "card_name": "Statement Necklace of Nerve",
+    "gag_cost": 3,
+    "type": "Accessory - Jewelry",
+    "effect_text": "+3 Nerve. Opponent's abilities cannot reduce this Queen's Nerve stat.",
+    "flavor_text": "It's not just jewelry, it's an armor of audacity.",
+    "rarity": "Iconic",
+    "edition_set": "All Stars 10 Core Set",
+    "image_file_name": "equip_statementnecklace_art.png"
+  },
+  {
+    "card_id": "EQA-MSC-001",
+    "card_name": "Glitter Bomb Makeup Kit",
+    "gag_cost": 2,
+    "type": "Accessory",
+    "effect_text": "+1 Charisma, +1 Uniqueness. When this card is played, you may remove 1 Shade Token from this Queen.",
+    "flavor_text": "When in doubt, glitter it out.",
+    "rarity": "Gagatrondra",
+    "edition_set": "All Stars 10 Core Set",
+    "image_file_name": "equip_glitterkit_art.png"
+  },
+  {
+    "card_id": "EQW-002",
+    "card_name": "The 'Sleek Bob' Wig",
+    "gag_cost": 1,
+    "type": "Wig",
+    "effect_text": "+1 Charisma. If the Lip Sync category is Charisma, gain an additional +1 Performance Score.",
+    "flavor_text": "Sharp, chic, and ready to read.",
+    "rarity": "Fierce",
+    "edition_set": "All Stars 10 Core Set",
+    "image_file_name": "equip_sleekbobwig_art.png"
+  },
+  {
+    "card_id": "EQC-002",
+    "card_name": "Avant-Garde Silhouette",
+    "gag_cost": 4,
+    "type": "Costume",
+    "effect_text": "+3 Uniqueness. Opponent cannot play Prop accessories on their Queen during their next turn.",
+    "flavor_text": "It's fashion, look it up.",
+    "rarity": "Legendary",
+    "edition_set": "All Stars 10 Core Set",
+    "image_file_name": "equip_avantgardesilhouette_art.png"
+  }
+]
