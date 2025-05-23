@@ -1,30 +1,50 @@
 // src/components/TurnAnnouncement.jsx
-import React, { useEffect, useState } from 'react';
-import { useAudio } from '../contexts/AudioContext'; // To play sound effects
+import React, { useEffect, useState, useRef } from 'react';
+import { useAudio } from '../contexts/AudioContext';
+import { SFX_PATHS } from '../hooks/useGameState'; 
 
-const TurnAnnouncement = ({ message, show }) => {
+const TURN_SOUND_COOLDOWN = 7000; // 7 seconds cooldown
+
+const TurnAnnouncement = ({ message, show, currentTurnForSound, turnNumberForSound }) => {
   const [internalShow, setInternalShow] = useState(false);
   const { playSoundEffect } = useAudio();
-  const SFX_TURN_CHANGE = '/assets/audio/sfx_turn_ping.ogg'; // Placeholder sound effect
+  
+  // Using SFX_PATHS.TURN_ANNOUNCEMENT which should be sfx_queen_shade.mp3
+  const SFX_FOR_TURN_ANNOUNCEMENT = SFX_PATHS.TURN_ANNOUNCEMENT; 
+  
+  const lastPlayedTimestampRef = useRef(0);
+  // Store both turn ID and turn number to correctly identify a new turn start
+  const lastPlayedTurnInfoRef = useRef({ turnId: null, turnNumber: 0 });
 
   useEffect(() => {
     if (show && message) {
       setInternalShow(true);
-      playSoundEffect(SFX_TURN_CHANGE); // Play sound when message appears
+      
+      const now = Date.now();
+      // Play sound only if the actual player turn has changed OR the turn number has incremented,
+      // AND the cooldown has passed.
+      const hasActualTurnChanged = lastPlayedTurnInfoRef.current.turnId !== currentTurnForSound || 
+                                   lastPlayedTurnInfoRef.current.turnNumber !== turnNumberForSound;
+
+      if (SFX_FOR_TURN_ANNOUNCEMENT && hasActualTurnChanged && (now - lastPlayedTimestampRef.current > TURN_SOUND_COOLDOWN)) { 
+        playSoundEffect(SFX_FOR_TURN_ANNOUNCEMENT, 0.35); // Reduced volume slightly for queen shade sound
+        lastPlayedTimestampRef.current = now; 
+        lastPlayedTurnInfoRef.current = { turnId: currentTurnForSound, turnNumber: turnNumberForSound };
+      }
+      
       const timer = setTimeout(() => {
         setInternalShow(false);
-      }, 2500); // Display for 2.5 seconds
+      }, 2500); 
       return () => clearTimeout(timer);
     } else {
-      setInternalShow(false); // Ensure it's hidden if show is false or no message
+      setInternalShow(false); 
     }
-  }, [show, message, playSoundEffect]);
+  }, [show, message, playSoundEffect, SFX_FOR_TURN_ANNOUNCEMENT, currentTurnForSound, turnNumberForSound]);
 
   if (!internalShow || !message) {
     return null;
   }
 
-  // Split message for styling, e.g., "Player 1's Turn" and "Werk Room"
   const parts = message.split(' - ');
   const turnPlayerPart = parts[0];
   const phasePart = parts[1];

@@ -1,13 +1,30 @@
 // src/components/LipSyncBattle.jsx
 import React, { useEffect, useState, useRef } from 'react';
-import { PHASES, PLAYER1_ID, PLAYER2_ID } from '../game/constants'; // Added PLAYER_ID constants
+import { PHASES, PLAYER1_ID, PLAYER2_ID } from '../game/constants';
 import { useAudio } from '../contexts/AudioContext';
+import { LIP_SYNC_INTRO_SFX_USER_OPTIONS, SFX_PATHS } from '../hooks/useGameState';
+import { DotPattern } from '@/components/ui/dot-pattern';
 
-const LIP_SYNC_INTRO_SFX_OPTIONS = [
-  '/assets/audio/sfx_lipsync_intro_1.ogg',
-  '/assets/audio/sfx_lipsync_intro_2.ogg',
-  '/assets/audio/sfx_lipsync_intro_3.ogg',
+const MAINSTAGE_IMAGES = [
+  '/assets/images/ui/mainstage1.jpg',
+  '/assets/images/ui/mainstage2.jpg',
 ];
+
+// Helper to calculate effective stat with equipment boosts
+function getEffectiveStat(queen, stat) {
+  const base = queen.originalStats?.[stat] ?? queen[stat] ?? 0;
+  let boost = 0;
+  if (queen.equipment) {
+    for (const eq of queen.equipment) {
+      if (eq.stat_boost) {
+        for (const sb of eq.stat_boost) {
+          if (sb.stat === stat) boost += sb.value;
+        }
+      }
+    }
+  }
+  return base + boost;
+}
 
 const LipSyncBattle = ({
   show,
@@ -16,7 +33,8 @@ const LipSyncBattle = ({
   category,
   lipSyncResult,
   currentPhase,
-  gameStateForWinnerName 
+  gameStateForWinnerName,
+  onPhaseChange
 }) => {
   const [attackerAnim, setAttackerAnim] = useState('');
   const [defenderAnim, setDefenderAnim] = useState('');
@@ -25,102 +43,153 @@ const LipSyncBattle = ({
   const [showScores, setShowScores] = useState(false);
   const [showShantayMessage, setShowShantayMessage] = useState(false);
   const [shantayMessageText, setShantayMessageText] = useState('');
+  const [showCategory, setShowCategory] = useState(false);
+  
+  // States for visual effects on queens
+  const [attackerVisualEffect, setAttackerVisualEffect] = useState('');
+  const [defenderVisualEffect, setDefenderVisualEffect] = useState('');
+  const [mainstageImage, setMainstageImage] = useState(MAINSTAGE_IMAGES[0]);
 
   const { playSoundEffect } = useAudio();
-  const introSoundPlayedRef = useRef(false); 
+  const introSoundPlayedRef = useRef(false);
+  const animationTimersRef = useRef([]);
 
-  const SFX_CATEGORY_REVEAL = '/assets/audio/sfx_category_reveal.ogg';
-  const SFX_SCORE_REVEAL = '/assets/audio/sfx_score_reveal.ogg';
-  const SFX_SHANTAY = '/assets/audio/sfx_shantay.ogg'; // Placeholder for "Shantay you stay"
-  const SFX_SASHAY = '/assets/audio/sfx_sashay.ogg';   // Placeholder for "Sashay away" (played by game logic later)
+  // Clear all animation timers on unmount or when show changes
+  useEffect(() => {
+    return () => {
+      animationTimersRef.current.forEach(timer => clearTimeout(timer));
+      animationTimersRef.current = [];
+    };
+  }, [show]);
 
+  // Play sound effect with error handling
+  const playSoundWithFallback = (soundPath, volume = 1.0) => {
+    if (!soundPath) return;
+    
+    try {
+      if (playSoundEffect) {
+        playSoundEffect(soundPath, volume);
+      }
+    } catch (err) {
+      console.warn('Sound effect playback failed:', err);
+    }
+  };
 
   useEffect(() => {
-    let vsTimer, categoryTimer, scoreTimer, shantayTimer;
-
     if (show) {
-      if (!introSoundPlayedRef.current) {
-        const randomIntroSfx = LIP_SYNC_INTRO_SFX_OPTIONS[Math.floor(Math.random() * LIP_SYNC_INTRO_SFX_OPTIONS.length)];
-        playSoundEffect(randomIntroSfx, 0.7);
-        introSoundPlayedRef.current = true;
-      }
-
-      setAttackerAnim('animate-slideInFromLeftVS'); // Duration: 0.7s, Delay: 0.2s -> Ends at 0.9s
-      setDefenderAnim('animate-slideInFromRightVS'); // Duration: 0.7s, Delay: 0.2s -> Ends at 0.9s
+      // Reset all states and clear any existing timers
+      animationTimersRef.current.forEach(timer => clearTimeout(timer));
+      animationTimersRef.current = [];
       
-      vsTimer = setTimeout(() => {
-        setVsTextAnim('animate-textPopVS'); // Duration: 0.8s -> Ends at 0.8s from its start
-      }, 200); // Start VS text slightly after queens start moving
-
-      categoryTimer = setTimeout(() => {
-        if (category) {
-            setCategoryAnim('animate-cuntFlash'); // Using cuntFlash for category now
-            playSoundEffect(SFX_CATEGORY_REVEAL);
-        }
-      }, 1000); // Start category after VS text is likely visible (0.2s + 0.8s = 1.0s)
-
-      if (currentPhase === PHASES.LIP_SYNC_RESOLUTION && lipSyncResult) {
-        scoreTimer = setTimeout(() => {
-          setShowScores(true);
-          playSoundEffect(SFX_SCORE_REVEAL);
-
-          // Determine Shantay/Sashay message
-          let message = "";
-          let winnerName = "";
-          if (lipSyncResult.winner && lipSyncResult.winner !== 'tie') {
-            const winnerPlayerObject = gameStateForWinnerName?.[lipSyncResult.winner];
-            winnerName = winnerPlayerObject?.name || 'A Queen'; // Fallback
-            
-            // Determine which queen object is the winner
-            let winningQueenObject;
-            if (lipSyncResult.winner === attackerQueen?.ownerId || lipSyncResult.winner === attackerQueen?.id) { // Check against attacker
-                winningQueenObject = attackerQueen;
-            } else if (defenderQueen && (lipSyncResult.winner === defenderQueen?.ownerId || lipSyncResult.winner === defenderQueen?.id)) { // Check against defender
-                winningQueenObject = defenderQueen;
-            }
-            winnerName = winningQueenObject?.queen_name || winnerName; // Prefer specific queen name
-            message = `${winnerName}, Shantay You Stay!`;
-            playSoundEffect(SFX_SHANTAY);
-          } else if (lipSyncResult.winner === 'tie') {
-            message = "It's a TIE, Shantay You Both Stay (for now)!";
-            // playSoundEffect(SFX_SHANTAY); // Or a specific tie sound
-          }
-          // Note: "Sashay Away" for the loser is better handled visually on the game board
-          // when the queen is actually removed, as this component doesn't know total shade.
-          
-          setShantayMessageText(message);
-          shantayTimer = setTimeout(() => {
-            setShowShantayMessage(true); // This will trigger its own animation
-          }, 1000); // Show Shantay message 1s after scores
-
-        }, category ? 2200 : 1700); // Start scores after category (1.0s + 1.2s = 2.2s)
-      } else {
-        setShowScores(false);
-        setShowShantayMessage(false);
-      }
-      
-    } else {
       setAttackerAnim('');
       setDefenderAnim('');
       setCategoryAnim('');
       setVsTextAnim('');
       setShowScores(false);
       setShowShantayMessage(false);
-      setShantayMessageText('');
+      setShowCategory(false);
+      setAttackerVisualEffect('');
+      setDefenderVisualEffect('');
+      
+      // Reset intro sound flag when show becomes false
+      if (!introSoundPlayedRef.current) {
+        if (LIP_SYNC_INTRO_SFX_USER_OPTIONS?.length > 0) {
+          const randomIntroSfx = LIP_SYNC_INTRO_SFX_USER_OPTIONS[Math.floor(Math.random() * LIP_SYNC_INTRO_SFX_USER_OPTIONS.length)];
+          playSoundWithFallback(randomIntroSfx, 0.7);
+        }
+        introSoundPlayedRef.current = true;
+      }
+
+      // Start animation sequence with a small delay to ensure state resets are complete
+      const timer1 = setTimeout(() => {
+        setAttackerAnim('animate-slideInFromLeftVS');
+        setDefenderAnim('animate-slideInFromRightVS');
+      }, 100);
+      animationTimersRef.current.push(timer1);
+
+      const timer2 = setTimeout(() => {
+        setVsTextAnim('animate-textPopVS');
+      }, 1000);
+      animationTimersRef.current.push(timer2);
+
+      // Show category with animation
+      if (category) {
+        const timer3 = setTimeout(() => {
+          setShowCategory(true);
+          setCategoryAnim('animate-cuntFlash');
+          playSoundWithFallback(SFX_PATHS.CATEGORY_REVEAL);
+          if (onPhaseChange) onPhaseChange(PHASES.LIP_SYNC_REVEAL);
+        }, 2000);
+        animationTimersRef.current.push(timer3);
+      }
+
+      // Handle resolution phase
+      if (currentPhase === PHASES.LIP_SYNC_RESOLUTION && lipSyncResult) {
+        const timer4 = setTimeout(() => {
+          setShowScores(true);
+          playSoundWithFallback(SFX_PATHS.SCORE_REVEAL);
+
+          // Apply visual effects for winner/loser
+          if (lipSyncResult.winner && lipSyncResult.winner !== 'tie') {
+            const isAttackerWinner = lipSyncResult.winner === attackerQueen?.ownerId || 
+                                   lipSyncResult.winner === attackerQueen?.id || 
+                                   (gameStateForWinnerName?.currentTurn === attackerQueen?.ownerId && 
+                                    lipSyncResult.winner === gameStateForWinnerName?.currentTurn);
+            
+            if (isAttackerWinner) {
+              setDefenderVisualEffect('animate-lipSyncLoser');
+            } else {
+              setAttackerVisualEffect('animate-lipSyncLoser');
+            }
+          } else if (lipSyncResult.winner === 'tie') {
+            setAttackerVisualEffect('opacity-80');
+            setDefenderVisualEffect('opacity-80');
+          }
+
+          // Set shantay message
+          let message = "";
+          let sfxToPlay = null;
+
+          if (lipSyncResult.winner && lipSyncResult.winner !== 'tie') {
+            const winnerPlayerObject = gameStateForWinnerName?.[lipSyncResult.winner];
+            const winningQueen = lipSyncResult.winner === attackerQueen?.ownerId ? attackerQueen : defenderQueen;
+            const winnerName = winningQueen?.queen_name || winnerPlayerObject?.name || 'A Queen';
+            message = `${winnerName}, Shantay You Stay!`;
+            sfxToPlay = SFX_PATHS.SHANTAY_STAY;
+          } else if (lipSyncResult.winner === 'tie') {
+            message = "It's a TIE, Shantay You Both Stay (for now)!";
+            sfxToPlay = SFX_PATHS.LIPSYNC_TIE;
+          }
+
+          setShantayMessageText(message);
+
+          const timer5 = setTimeout(() => {
+            setShowShantayMessage(true);
+            if (sfxToPlay) playSoundWithFallback(sfxToPlay);
+          }, 1000);
+          animationTimersRef.current.push(timer5);
+        }, category ? 3500 : 2500);
+        animationTimersRef.current.push(timer4);
+      }
+
+      // Randomly select a mainstage image each time the battle is shown
+      setMainstageImage(MAINSTAGE_IMAGES[Math.floor(Math.random() * MAINSTAGE_IMAGES.length)]);
+    } else {
+      // Reset intro sound flag when show becomes false
       introSoundPlayedRef.current = false;
+      // Clear all animation timers when component is hidden
+      animationTimersRef.current.forEach(timer => clearTimeout(timer));
+      animationTimersRef.current = [];
     }
 
+    // Cleanup function to clear any remaining timers
     return () => {
-      clearTimeout(vsTimer);
-      clearTimeout(categoryTimer);
-      clearTimeout(scoreTimer);
-      clearTimeout(shantayTimer);
+      animationTimersRef.current.forEach(timer => clearTimeout(timer));
+      animationTimersRef.current = [];
     };
-  }, [show, category, currentPhase, lipSyncResult, playSoundEffect, attackerQueen, defenderQueen, gameStateForWinnerName]);
+  }, [show, category, currentPhase, lipSyncResult, attackerQueen, defenderQueen, gameStateForWinnerName, onPhaseChange]);
 
-  if (!show || !attackerQueen) {
-    return null;
-  }
+  if (!show || !attackerQueen) return null;
 
   const attackerImageUrl = attackerQueen.image_file_name 
     ? `/assets/images/queens_art/${attackerQueen.image_file_name}` 
@@ -139,81 +208,83 @@ const LipSyncBattle = ({
       default: return 'text-gold';
     }
   };
-  
-  const getWinnerPlayerName = () => { // Renamed to avoid conflict
-    if (!lipSyncResult || !lipSyncResult.winner || lipSyncResult.winner === 'tie' || !gameStateForWinnerName) {
-        return null;
-    }
-    return gameStateForWinnerName[lipSyncResult.winner]?.name || 'A Queen';
-  }
+
+  // Example usage: get effective stat for the battle category
+  // const attackerStat = getEffectiveStat(attackerQueen, category?.toLowerCase());
+  // const defenderStat = defenderQueen ? getEffectiveStat(defenderQueen, category?.toLowerCase()) : 0;
 
   return (
-    <div 
-      className={`fixed inset-0 bg-black/90 backdrop-blur-2xl flex flex-col items-center justify-center z-[2000] overflow-hidden
-                  transition-opacity duration-300 ease-in-out ${show ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-    >
-      <div className="relative w-full h-full flex items-center justify-around p-2 sm:p-4 md:p-8">
-        {/* Attacker Side */}
-        <div className={`w-2/5 md:w-1/3 h-full flex flex-col items-center justify-center transform ${attackerAnim} opacity-0`}>
-          <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md aspect-[3/4] mb-4 filter drop-shadow-[-8px_8px_15px_rgba(255,105,180,0.4)]">
-            <img src={attackerImageUrl} alt={attackerQueen.queen_name} className="w-full h-full object-contain" />
+    <div className={`fixed inset-0 z-[2000] overflow-hidden flex items-center justify-center`}> 
+      {/* Mainstage background image */}
+      <img src={mainstageImage} alt="Mainstage" className="absolute inset-0 w-full h-full object-cover z-0 transition-all duration-700 ease-in-out" style={{filter:'brightness(0.85)'}} />
+      {/* Animated dots background */}
+      <DotPattern glow={true} cr={2} className="absolute inset-0 w-full h-full text-white/60 opacity-0 animate-fadeInDotPattern z-0" />
+      {/* Glassmorphic blurred gradient overlay */}
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-pink-900/60 via-purple-900/40 to-blue-900/60 backdrop-blur-2xl opacity-30 pointer-events-none z-10 transition-all duration-700 ease-in-out animate-fadeInGlass" />
+      <div className="relative w-full h-full flex items-stretch justify-center z-20">
+        {/* Attacker Side - left half */}
+        <div className={`flex-1 flex flex-col items-center justify-end relative overflow-hidden ${attackerAnim} ${attackerVisualEffect}`}> 
+          <div className="flex-1 flex items-end justify-center">
+            <img src={attackerImageUrl} alt={attackerQueen.queen_name} className="w-full h-full object-cover object-bottom drop-shadow-2xl transition-all duration-700 ease-in-out" style={{maxHeight:'100vh'}} />
           </div>
-          <p className="text-xl md:text-2xl lg:text-3xl font-bold text-white mt-2 text-center" style={{textShadow: '2px 2px 5px rgba(0,0,0,0.8)'}}>
+          {/* Name overlay */}
+          <div className="absolute bottom-0 left-0 right-0 px-4 pb-8 flex justify-center transition-all duration-700 ease-in-out">
+            <span className="bg-black/70 text-white text-3xl md:text-4xl font-extrabold px-6 py-2 rounded-xl shadow-lg border-2 border-pink-400/40 backdrop-blur-sm transition-all duration-700 ease-in-out">
               {attackerQueen.queen_name}
-          </p>
+            </span>
+          </div>
         </div>
-
-        {/* Center Area - VS, Category, C.U.N.T Flash, Scores, Shantay Message */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none space-y-3 md:space-y-6">
-            <div className={`text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-extrabold text-white transform ${vsTextAnim} opacity-0`}
-                 style={{ WebkitTextStroke: '2px black', textShadow: '0 0 15px #FF1493, 0 0 25px #FF1493, 0 0 35px #FF1493' }}>
-                VS
+        {/* Center VS and category */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-30 pointer-events-none transition-all duration-700 ease-in-out">
+          <div className={`text-7xl md:text-8xl font-extrabold text-white drop-shadow-lg ${vsTextAnim} transition-all duration-700 ease-in-out`}
+               style={{ WebkitTextStroke: '2px black', textShadow: '0 0 15px #FF1493, 0 0 25px #FF1493, 0 0 35px #FF1493' }}>
+            VS
+          </div>
+          {showCategory && (
+            <div className={`mt-4 text-5xl md:text-6xl font-serif font-black tracking-widest ${getStatColor(category)} ${categoryAnim} transition-all duration-700 ease-in-out`}
+                 style={{textShadow: `0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px ${getStatColor(category).replace('text-', '')}, 2px 2px 2px rgba(0,0,0,0.5)`}}>
+              {category.toUpperCase()}!
             </div>
-
-            {category && (
-                 <div className={`text-4xl sm:text-5xl md:text-7xl font-serif font-black tracking-widest animate-cuntFlash ${getStatColor(category)} ${categoryAnim} opacity-0`}
-                      style={{textShadow: `0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px ${getStatColor(category).replace('text-', '')}, 2px 2px 2px rgba(0,0,0,0.5)`}}>
-                    {category.toUpperCase()}!
-                </div>
-            )}
-            
-            {showScores && lipSyncResult && (
-                <div className="mt-3 md:mt-4 p-3 md:p-4 bg-black/60 rounded-lg text-center animate-fadeInScaleUpVS backdrop-blur-sm border border-white/20">
-                    <p className={`text-lg sm:text-xl md:text-2xl font-bold ${lipSyncResult.winner === attackerQueen?.ownerId || lipSyncResult.winner === attackerQueen?.id ? 'text-gold scale-110' : 'text-slate-300'}`}>
-                        {attackerQueen.queen_name}: {lipSyncResult.attackerScore}
-                    </p>
-                    <p className={`text-lg sm:text-xl md:text-2xl font-bold ${lipSyncResult.winner === defenderQueen?.ownerId || lipSyncResult.winner === defenderQueen?.id ? 'text-gold scale-110' : 'text-slate-300'}`}>
-                        {defenderQueen ? `${defenderQueen.queen_name}: ${lipSyncResult.defenderScore}` : 'No Defender: -'}
-                    </p>
-                </div>
-            )}
-
-            {showShantayMessage && shantayMessageText && (
-                <div className="mt-3 md:mt-5 text-center animate-fadeInScaleUpVS">
-                    <p className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-gold" style={{textShadow: '2px 2px 8px rgba(0,0,0,0.7), 0 0 15px #FFD700'}}>
-                        {shantayMessageText}
-                    </p>
-                </div>
-            )}
-        </div>
-
-        {/* Defender Side */}
-        <div className={`w-2/5 md:w-1/3 h-full flex flex-col items-center justify-center transform ${defenderAnim} opacity-0`}>
-          {defenderQueen && (
-            <>
-            <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md aspect-[3/4] mb-4 filter drop-shadow-[8px_8px_15px_rgba(0,191,255,0.4)]">
-              <img src={defenderImageUrl} alt={defenderQueen.queen_name} className="w-full h-full object-contain" />
-            </div>
-            <p className="text-xl md:text-2xl lg:text-3xl font-bold text-white mt-2 text-center" style={{textShadow: '2px 2px 5px rgba(0,0,0,0.8)'}}>
-                {defenderQueen.queen_name}
-            </p>
-            </>
           )}
-           {!defenderQueen && currentPhase !== PHASES.LIP_SYNC_SELECT_DEFENDER && (
-            <div className="text-xl md:text-2xl text-slate-500 italic">No Defender</div>
+          {showScores && lipSyncResult && (
+            <div className="mt-8 p-4 bg-black/70 rounded-lg text-center animate-fadeInScaleUpVS backdrop-blur-sm border border-white/20 transition-all duration-700 ease-in-out">
+              <p className={`text-2xl md:text-3xl font-bold ${lipSyncResult.winner === attackerQueen?.ownerId || lipSyncResult.winner === attackerQueen?.id ? 'text-gold scale-110' : 'text-slate-300'}`}>
+                {attackerQueen.queen_name}: {lipSyncResult.attackerScore}
+              </p>
+              <p className={`text-2xl md:text-3xl font-bold ${lipSyncResult.winner === defenderQueen?.ownerId || lipSyncResult.winner === defenderQueen?.id ? 'text-gold scale-110' : 'text-slate-300'}`}>
+                {defenderQueen ? `${defenderQueen.queen_name}: ${lipSyncResult.defenderScore}` : 'Sashay away.'}
+              </p>
+            </div>
+          )}
+          {showShantayMessage && (
+            <div className="mt-8 text-center animate-fadeInScaleUpVS transition-all duration-700 ease-in-out">
+              <p className="text-3xl md:text-4xl font-serif font-bold text-gold bg-black/70 px-6 py-3 rounded-xl shadow-lg transition-all duration-700 ease-in-out" 
+                 style={{textShadow: '2px 2px 8px rgba(0,0,0,0.7), 0 0 15px #FFD700'}}>
+                {shantayMessageText}
+              </p>
+            </div>
+          )}
+        </div>
+        {/* Defender Side - right half */}
+        <div className={`flex-1 flex flex-col items-center justify-end relative overflow-hidden ${defenderAnim} ${defenderVisualEffect}`}> 
+          <div className="flex-1 flex items-end justify-center">
+            <img src={defenderImageUrl} alt={defenderQueen?.queen_name || 'Defender'} className="w-full h-full object-cover object-bottom drop-shadow-2xl transition-all duration-700 ease-in-out" style={{maxHeight:'100vh'}} />
+          </div>
+          {/* Name overlay */}
+          {defenderQueen && (
+            <div className="absolute bottom-0 left-0 right-0 px-4 pb-8 flex justify-center transition-all duration-700 ease-in-out">
+              <span className="bg-black/70 text-white text-3xl md:text-4xl font-extrabold px-6 py-2 rounded-xl shadow-lg border-2 border-blue-400/40 backdrop-blur-sm transition-all duration-700 ease-in-out">
+                {defenderQueen.queen_name}
+              </span>
+            </div>
           )}
         </div>
       </div>
+      {/* Animations for fade in */}
+      <style>{`
+        @keyframes fadeInDotPattern { from { opacity: 0; } to { opacity: 0.6; } }
+        @keyframes fadeInGlass { from { opacity: 0; } to { opacity: 0.3; } }
+      `}</style>
     </div>
   );
 };

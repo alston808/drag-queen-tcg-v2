@@ -111,7 +111,16 @@ const CardAlbum = ({ allQueens }) => {
           {filteredQueens.map((queen) => (
             <QueenCard
               key={queen.card_id}
-              {...queen}
+              slot={{
+                queen,
+                stats: {
+                  charisma: queen.charisma,
+                  uniqueness: queen.uniqueness,
+                  nerve: queen.nerve,
+                  talent: queen.talent
+                },
+                equipment: []
+              }}
               onClick={() => openModal(queen)}
             />
           ))}
@@ -122,7 +131,16 @@ const CardAlbum = ({ allQueens }) => {
 
       {isModalOpen && selectedQueenForModal && (
         <QueenModal
-          queen={selectedQueenForModal}
+          slot={{
+            queen: selectedQueenForModal,
+            stats: {
+              charisma: selectedQueenForModal.charisma,
+              uniqueness: selectedQueenForModal.uniqueness,
+              nerve: selectedQueenForModal.nerve,
+              talent: selectedQueenForModal.talent
+            },
+            equipment: []
+          }}
           onClose={closeModal}
         />
       )}

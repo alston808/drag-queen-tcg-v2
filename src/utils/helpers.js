@@ -9,3 +9,8 @@ export const shuffle = (array) => {
     return array;
   };
   
+// Utility to join class names (like classnames or tailwind-merge)
+export function cn(...args) {
+  return args.filter(Boolean).join(' ');
+}
+  

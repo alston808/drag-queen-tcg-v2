@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Sashay Away, Page Not Found!</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Extracted/Inferred from your Tailwind config & index.css */
+            /* Replace with exact values from your tailwind.config.js if they differ */
+            --font-sans: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --font-serif: 'Playfair Display', serif; /* Assuming Playfair Display for font-serif */
+
+            --color-blue-violet: #8A2BE2; /* Standard BlueViolet - replace if custom */
+            --color-deep-pink: #FF1493;   /* Standard DeepPink - replace if custom */
+            --color-soft-white: #F8F8FF;  /* GhostWhite, a soft white - replace if custom */
+            --color-gold: #FFD700;        /* Standard Gold - replace if custom */
+            --color-hot-pink-transparent: rgba(255, 105, 180, 0.8); /* From scrollbar, with more opacity */
+            --color-hot-pink-solid: #FF69B4; /* Hot Pink */
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-image: linear-gradient(to bottom right, var(--color-blue-violet), var(--color-deep-pink));
+            color: var(--color-soft-white);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-x: hidden; /* From your index.css body style */
+        }
+
+        .container {
+            background-color: rgba(0, 0, 0, 0.3); /* Semi-transparent dark background for contrast */
+            padding: 40px 50px;
+            border-radius: 20px; /* More rounded */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 0 2px var(--color-hot-pink-solid); /* Adding a border to pop */
+            max-width: 600px;
+            width: 100%;
+            border: 1px solid var(--color-hot-pink-transparent);
+        }
+
+        h1 {
+            font-family: var(--font-serif);
+            color: var(--color-gold);
+            font-size: 5rem; /* Larger for emphasis */
+            font-weight: 900; /* Make it bolder if Playfair Display supports it */
+            margin-bottom: 0.5rem;
+            text-shadow: 3px 3px 0px var(--color-deep-pink), 5px 5px 0px rgba(0,0,0,0.3); /* More dramatic shadow */
+        }
+
+        h2 {
+            font-family: var(--font-serif);
+            color: var(--color-soft-white);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            text-shadow: 1px 1px 2px var(--color-deep-pink);
+        }
+
+        p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+            font-weight: 400;
+        }
+
+        .home-link {
+            display: inline-block;
+            padding: 15px 35px;
+            background-color: var(--color-gold);
+            color: var(--color-deep-pink); /* Text color that pops on gold */
+            text-decoration: none;
+            font-family: var(--font-serif); /* Using serif for button text for flair */
+            font-weight: 700;
+            border-radius: 50px; /* Pill shape */
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+            font-size: 1.25rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--color-soft-white); /* Border to make it stand out */
+            text-transform: uppercase; /* common for themed buttons */
+        }
+
+        .home-link:hover,
+        .home-link:focus {
+            background-color: var(--color-hot-pink-solid);
+            color: var(--color-soft-white);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            outline: 3px solid var(--color-gold); /* From your index.css focus style */
+            outline-offset: 2px;
+        }
+
+        .sparkle {
+            color: var(--color-gold);
+            text-shadow: 0 0 5px var(--color-gold);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>404</h1>
+        <h2>Oh No, She Better Don't!</h2>
+        <p>
+            Looks like this page has packed her bags and sashayed away, honey.
+            But don't you fret, your charisma, uniqueness, nerve, and talent will guide you back!
+        </p>
+        <p>
+            Let's get you back to the main stage, where the real eleganza awaits!
+            <span class="sparkle">✨</span> Work that runway! <span class="sparkle">✨</span>
+        </p>
+        <a href="/" class="home-link">Return to the Spotlight</a>
+    </div>
+</body>
+</html>
